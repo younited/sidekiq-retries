@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'sidekiq/api'
 
 module Sidekiq
   module Retries
