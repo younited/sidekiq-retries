@@ -24,7 +24,7 @@ module Sidekiq
                     'retry' => false}
             expect {
               handler.call(RetryWorker, args, queue) do
-                raise Sidekiq::Retries::Retry.new(RuntimeError.new(errmsg), 10)
+                raise Sidekiq::Retries::Retry.new(RuntimeError.new(errmsg))
               end
             }.to raise_error(RuntimeError, errmsg)
             expect(Sidekiq::RetrySet.new.size).to eq(1)

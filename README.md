@@ -11,21 +11,29 @@ Add this line to your application's Gemfile:
 
 ## Usage
 
-    class MyWorker
+    class NoRetryJob
       include Sidekiq::Worker
-      sidekiq_options retry: false # or retry: 25, or the default...
+      sidekiq_options retry: false
 
       def perform
-        #force a retry even if retry: false using default retry options
-        raise Sidekiq::Retries::Retry.new(RuntimeError.new('whatever happened'))
-
-        #force a retry even if retry: false using a specific max_retries
-        raise Sidekiq::Retries::Retry.new(RuntimeError.new('whatever happened'), 10)
-
-        #if e.g. retries: true or retries: 10, skip it anyway
+        # force a retry
+        raise Sidekiq::Retries::Retry.new(RuntimeError.new('whatever happened'))        
+      end
+    end
+    
+    class RetryJob
+      include Sidekiq::Worker
+      sidekiq_options retry: 25
+    
+      def perform                        
+        # fail the job, don't retry it 
         raise Sidekiq::Retries::Fail.new(RuntimeError.new('whatever happened'))
       end
     end
+    
+## Caveats
+
+* Jobs with retry: 0 don't ever appear to show up in the Sidekiq 3 Dead queue
 
 ## Contributing
 
