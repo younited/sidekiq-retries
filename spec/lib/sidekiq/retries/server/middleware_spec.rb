@@ -17,11 +17,26 @@ module Sidekiq
           Sidekiq::RetrySet.new.clear
         end
 
-        context 'a worker without retry' do
+        context 'a worker with retry: false' do
           it 'should retry anyway if we raise a Sidekiq::Retries::Retry' do
             args = {'class' => 'Bob',
-                    'args' => [1],
+                    'args'  => [1],
                     'retry' => false}
+            expect {
+              handler.call(RetryWorker, args, queue) do
+                raise Sidekiq::Retries::Retry.new(RuntimeError.new(errmsg))
+              end
+            }.to raise_error(RuntimeError, errmsg)
+            expect(Sidekiq::RetrySet.new.size).to eq(1)
+          end
+
+        end
+
+        context 'a worker with retry: 0' do
+          it 'should retry anyway if we raise a Sidekiq::Retries::Retry' do
+            args = {'class' => 'Bob',
+                    'args'  => [1],
+                    'retry' => 0}
             expect {
               handler.call(RetryWorker, args, queue) do
                 raise Sidekiq::Retries::Retry.new(RuntimeError.new(errmsg))
@@ -35,7 +50,7 @@ module Sidekiq
         context 'a worker with retry' do
           it 'should not retry if we raise a Sidekiq::Retries::Fail' do
             args = {'class' => 'Bob',
-                    'args' => [1],
+                    'args'  => [1],
                     'retry' => 2}
             expect {
               handler.call(RetryWorker, args, queue) do

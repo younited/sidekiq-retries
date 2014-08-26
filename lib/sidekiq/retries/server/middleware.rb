@@ -13,11 +13,11 @@ module Sidekiq
           raise
         rescue Sidekiq::Retries::Retry => e
           # force a retry (for workers that have retries disabled)
-          msg['retry'] ||= e.max_retries
+          msg['retry'] = e.max_retries || '1'
           attempt_retry(worker, msg, queue, e.cause)
           raise e.cause
         rescue Sidekiq::Retries::Fail => e
-          # don't retry this message (for workers that retry by default)
+          # seriously, don't retry this
           raise e.cause
         rescue Exception => e
           attempt_retry(worker, msg, queue, e) if msg['retry']
@@ -26,24 +26,28 @@ module Sidekiq
 
         private
 
-        # This is the default Sidekiq 2.17.x retry logic
+        # This is the default Sidekiq 3.2.2 retry logic
         def attempt_retry(worker, msg, queue, e)
+          # ignore, will be pushed back onto queue during hard_shutdown
+          raise Sidekiq::Shutdown if exception_caused_by_shutdown?(e)
+
+          raise e unless msg['retry']
           max_retry_attempts = retry_attempts_from(msg['retry'], @max_retries)
 
           msg['queue'] = if msg['retry_queue']
-                           msg['retry_queue']
-                         else
-                           queue
-                         end
-          msg['error_message'] = e.message
+            msg['retry_queue']
+          else
+            queue
+          end
+          msg['error_message'] = e.message[0..10_000]
           msg['error_class'] = e.class.name
           count = if msg['retry_count']
-                    msg['retried_at'] = Time.now.to_f
-                    msg['retry_count'] += 1
-                  else
-                    msg['failed_at'] = Time.now.to_f
-                    msg['retry_count'] = 0
-                  end
+            msg['retried_at'] = Time.now.to_f
+            msg['retry_count'] += 1
+          else
+            msg['failed_at'] = Time.now.to_f
+            msg['retry_count'] = 0
+          end
 
           if msg['backtrace'] == true
             msg['error_backtrace'] = e.backtrace
@@ -65,6 +69,8 @@ module Sidekiq
             # Goodbye dear message, you (re)tried your best I'm sure.
             retries_exhausted(worker, msg)
           end
+
+          raise e
         end
 
       end
