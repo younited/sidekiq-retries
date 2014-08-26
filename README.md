@@ -30,10 +30,6 @@ Add this line to your application's Gemfile:
         raise Sidekiq::Retries::Fail.new(RuntimeError.new('whatever happened'))
       end
     end
-    
-## Caveats
-
-* Jobs with retry: 0 don't ever appear to show up in the Sidekiq 3 Dead queue
 
 ## Contributing
 
