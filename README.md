@@ -13,7 +13,7 @@ Add this line to your application's Gemfile:
 
     class NoRetryJob
       include Sidekiq::Worker
-      sidekiq_options retry: false
+      sidekiq_options retry: false  # or retry: 0
 
       def perform
         # force a retry
