@@ -1,5 +1,7 @@
 # Sidekiq::Retries
 
+[![Build Status](https://travis-ci.org/govdelivery/sidekiq-retries.svg?branch=master)](https://travis-ci.org/govdelivery/sidekiq-retries)
+
 This subclasses the stock Sidekiq retries middleware to give you some additional options to conditionally retry jobs
 irrespective of whether retries are enabled for the job.
 
