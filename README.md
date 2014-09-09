@@ -2,14 +2,24 @@
 
 [![Build Status](https://travis-ci.org/govdelivery/sidekiq-retries.svg?branch=master)](https://travis-ci.org/govdelivery/sidekiq-retries)
 
-This subclasses the stock Sidekiq retries middleware to give you some additional options to conditionally retry jobs
-irrespective of whether retries are enabled for the job.
+This subclasses the stock Sidekiq retries middleware so that you can
+
+* retry a job that has retries disabled (retry: 0 or retry: false)
+* abort (don't retry) a job that will otherwise retry by default
+
+but still have the job raise an exception so that you can observe that the job failed (by checking the logs,
+using sidekiq-failures, etc.).
+
+Don't use this as a replacement for making your jobs idempotent!
+
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
     gem 'sidekiq-retries'
+
+
 
 ## Usage
 
@@ -18,7 +28,7 @@ Add this line to your application's Gemfile:
       sidekiq_options retry: false  # or retry: 0
 
       def perform
-        # force a retry
+        # retry this job when it otherwise would not
         raise Sidekiq::Retries::Retry.new(RuntimeError.new('whatever happened'))        
       end
     end
@@ -28,7 +38,7 @@ Add this line to your application's Gemfile:
       sidekiq_options retry: 25
     
       def perform                        
-        # fail the job, don't retry it 
+        # don't retry this particular job
         raise Sidekiq::Retries::Fail.new(RuntimeError.new('whatever happened'))
       end
     end
