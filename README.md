@@ -8,7 +8,7 @@ This subclasses the stock Sidekiq retries middleware so that you can
 * abort (don't retry) a job that will otherwise retry by default
 
 but still have the job raise an exception so that you can observe that the job failed (by checking the logs,
-using sidekiq-failures, etc.).
+using [sidekiq-failures](https://github.com/mhfs/sidekiq-failures), etc.).
 
 Don't use this as a replacement for making your jobs idempotent!
 
