@@ -13,7 +13,7 @@ module Sidekiq
           raise
         rescue Sidekiq::Retries::Retry => e
           # force a retry (for workers that have retries disabled)
-          msg['retry'] = e.max_retries || '1'
+          msg['retry'] = e.max_retries
           attempt_retry(worker, msg, queue, e.cause)
           raise e.cause
         rescue Sidekiq::Retries::Fail => e
