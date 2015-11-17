@@ -1,4 +1,9 @@
-require 'celluloid'
+begin
+  require 'celluloid'
+rescue LoadError
+  # ignore, seems we're in Sidekiq 4
+end
+
 require 'sidekiq/middleware/server/retry_jobs'
 
 module Sidekiq
