@@ -3,7 +3,6 @@ begin
 rescue LoadError
 end
 
-require 'rspec/autorun'
 require 'rspec'
 
 begin
