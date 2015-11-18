@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'rspec-mocks'
-  spec.add_development_dependency 'activesupport', '~> 3'
+  spec.add_development_dependency 'activesupport', '~> 4'
   spec.add_development_dependency 'simplecov'
   spec.add_development_dependency 'rspec-sidekiq'
 end
